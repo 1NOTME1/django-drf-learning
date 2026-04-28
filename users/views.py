@@ -24,6 +24,12 @@ def users_list_view(request):
     elif is_active_param == "false":
         users = users.filter(is_active=False)
     
+    if ordering is not None and ordering not in ["age", "-age"]:
+        return Response({
+            "status": "error",
+            "message": "Invalid ordering value"
+        }, status=400)
+    
     if ordering == "age":
         users = users.order_by("age")
     elif ordering == "-age":

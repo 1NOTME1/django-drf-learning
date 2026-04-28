@@ -5,6 +5,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
         fields = ["id", "name", "age", "is_active"]
+        
     def validate_name(self, value):
         name = value.strip()
         if not name:
