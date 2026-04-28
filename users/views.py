@@ -10,6 +10,12 @@ def users_list_view(request):
     min_age = request.query_params.get("min_age")
     is_active_param = request.query_params.get("is_active")
     ordering = request.query_params.get("ordering")
+    name = request.query_params.get("name")
+    
+    if name is not None:
+        name = name.strip()
+        if name:
+            users = users.filter(name__icontains=name)
     
     if min_age is not None:
         try:
