@@ -1,7 +1,7 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .models import UserProfile
-from .serializer import UserInputSerializer, UserProfileSerializer
+from .serializer import UserProfileSerializer
 
 @api_view(["GET"])
 def users_list_view(request):
