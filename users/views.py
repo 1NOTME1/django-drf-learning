@@ -19,6 +19,12 @@ def users_list_view(request):
     if min_age is not None:
         users = users.filter(age__gte=min_age)
     
+    if is_active_param is not None and is_active_param not in ["true", "false"]:
+        return Response({
+            "status": "error",
+            "message": "Invalid is_active value"
+        }, status=400)
+    
     if is_active_param == "true":
         users = users.filter(is_active=True)
     elif is_active_param == "false":
