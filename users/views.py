@@ -11,12 +11,21 @@ def users_list_view(request):
     is_active_param = request.query_params.get("is_active")
     ordering = request.query_params.get("ordering")
     
-    try:
-        min_age = int(min_age)
-    except (TypeError, ValueError):
-        min_age = None
-        
     if min_age is not None:
+        try:
+            min_age = int(min_age)
+        except (TypeError, ValueError):
+            return Response({
+                "status": "error",
+                "message": "Invalid min_age value"
+            }, status=400)
+        
+        if min_age < 0:
+            return Response({
+                "status": "error",
+                "message": "Invalid min_age value"
+            }, status=400)
+            
         users = users.filter(age__gte=min_age)
     
     if is_active_param is not None and is_active_param not in ["true", "false"]:
@@ -47,7 +56,7 @@ def users_list_view(request):
         "status": "ok",
         "data": serializer.data,
         "count": users.count()
-    })
+    }, status=200)
 
 @api_view(["GET"])
 def get_user_view(request, user_id):
