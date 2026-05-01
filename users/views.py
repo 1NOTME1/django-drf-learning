@@ -1,8 +1,13 @@
+# region imports
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 from .models import UserProfile
 from .serializers import UserProfileSerializer
+
+# endregion
+
+# region helpers
 
 
 def error_response(message, status_code=400):
@@ -28,45 +33,72 @@ def get_user_or_none(user_id):
         return None
 
 
-@api_view(["GET"])
-def users_list_view(request):
-    users = UserProfile.objects.all()
-
-    min_age = request.query_params.get("min_age")
-    is_active_param = request.query_params.get("is_active")
-    ordering = request.query_params.get("ordering")
+def apply_user_filters(users, request):
     name = request.query_params.get("name")
-
-    allowed_ordering = ["age", "-age", "name", "-name"]
+    is_active_param = request.query_params.get("is_active")
     active_values = {"true": True, "false": False}
+
+    if is_active_param is not None and is_active_param not in active_values:
+        return None
+    if is_active_param is not None:
+        users = users.filter(is_active=active_values[is_active_param])
 
     if name is not None:
         name = name.strip()
         if name:
             users = users.filter(name__icontains=name)
+    return users
 
-    if min_age is not None:
-        try:
-            min_age = int(min_age)
-        except (TypeError, ValueError):
-            return error_response("Invalid min_age value")
 
-        if min_age < 0:
-            return error_response("Invalid min_age value")
-
-        users = users.filter(age__gte=min_age)
-
-    if is_active_param is not None and is_active_param not in active_values:
-        return error_response("Invalid is_active value")
-
-    if is_active_param is not None:
-        users = users.filter(is_active=active_values[is_active_param])
+def apply_user_ordering(users, request):
+    allowed_ordering = ["age", "-age", "name", "-name"]
+    ordering = request.query_params.get("ordering")
 
     if ordering is not None and ordering not in allowed_ordering:
-        return error_response("Invalid ordering value")
-
+        return None
     if ordering is not None:
         users = users.order_by(ordering)
+
+    return users
+
+
+def apply_min_age_filter(users, request):
+    min_age = request.query_params.get("min_age")
+
+    if min_age is None:
+        return users
+
+    try:
+        min_age = int(min_age)
+    except (ValueError, TypeError):
+        return None
+
+    if min_age < 0:
+        return None
+
+    users = users.filter(age__gte=min_age)
+
+    return users
+
+
+# endregion
+
+
+@api_view(["GET"])
+def users_list_view(request):
+    users = UserProfile.objects.all()
+
+    users = apply_user_filters(users, request)
+    if users is None:
+        return error_response("Invalid is_active value")
+
+    users = apply_min_age_filter(users, request)
+    if users is None:
+        return error_response("Invalid min_age value")
+
+    users = apply_user_ordering(users, request)
+    if users is None:
+        return error_response("Invalid ordering value")
 
     serializer = UserProfileSerializer(users, many=True)
 
