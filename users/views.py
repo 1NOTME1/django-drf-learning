@@ -1,8 +1,8 @@
 # region imports
 from rest_framework.decorators import api_view
 
-from .models import UserProfile
-from .serializers import UserProfileSerializer
+from .models import UserProfile, Department
+from .serializers import UserProfileSerializer, DepartmentSerializer
 
 from .filters import (
     apply_user_filters,
@@ -99,3 +99,12 @@ def delete_user_view(request, user_id):
     user.delete()
 
     return message_response("User deleted")
+
+
+@api_view(["GET"])
+def departments_list_view(request):
+    departments = Department.objects.all()
+    
+    serializer = DepartmentSerializer(departments, many=True)
+    
+    return list_response(serializer.data, departments.count())

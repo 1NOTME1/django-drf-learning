@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import UserProfile
+from .models import UserProfile, Department
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
@@ -20,3 +20,8 @@ class UserProfileSerializer(serializers.ModelSerializer):
         if value < 0 or value > 120:
             raise serializers.ValidationError("Age must be between 0 and 120")
         return value
+    
+class DepartmentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Department
+        fields = ["id", "name"]
