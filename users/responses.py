@@ -18,6 +18,4 @@ def message_response(message, status_code=200):
 
 
 def list_response(data, count, status_code=200):
-    return Response(
-        {"status": "ok", "data": data, "count": count, "status": status_code}
-    )
+    return Response({"status": "ok", "data": data, "count": count}, status=status_code)
