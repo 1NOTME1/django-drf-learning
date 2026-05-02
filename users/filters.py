@@ -30,7 +30,7 @@ def apply_department_filter(users, request):
     if department_id < 1:
         return None
     
-    users = users.filter(department_id = department_id)
+    users = users.filter(department_id=department_id)
     
     return users
 

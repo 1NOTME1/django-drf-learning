@@ -9,39 +9,23 @@ from .filters import (
     apply_user_filters,
     apply_department_filter,
     apply_min_age_filter,
-    apply_user_ordering
+    apply_user_ordering,
+)
+
+from .responses import (
+    error_response,
+    validation_error_response,
+    success_response,
+    message_response,
 )
 
 # endregion
-
-# region helpers
-
-
-def error_response(message, status_code=400):
-    return Response({"status": "error", "message": message}, status=status_code)
-
-
-def validation_error_response(errors, status_code=400):
-    return Response({"status": "error", "errors": errors}, status=status_code)
-
-
-def success_response(data=None, status_code=200):
-    return Response({"status": "ok", "data": data}, status=status_code)
-
-
-def message_response(message, status_code=200):
-    return Response({"status": "ok", "message": message}, status=status_code)
-
 
 def get_user_or_none(user_id):
     try:
         return UserProfile.objects.get(id=user_id)
     except UserProfile.DoesNotExist:
         return None
-
-
-
-# endregion
 
 
 @api_view(["GET"])
