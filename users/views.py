@@ -19,13 +19,9 @@ from .responses import (
     message_response,
 )
 
+from .selectors import get_user_or_none
 # endregion
 
-def get_user_or_none(user_id):
-    try:
-        return UserProfile.objects.get(id=user_id)
-    except UserProfile.DoesNotExist:
-        return None
 
 
 @api_view(["GET"])
