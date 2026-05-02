@@ -1,6 +1,5 @@
 # region imports
 from rest_framework.decorators import api_view
-from rest_framework.response import Response
 
 from .models import UserProfile
 from .serializers import UserProfileSerializer
@@ -17,11 +16,11 @@ from .responses import (
     validation_error_response,
     success_response,
     message_response,
+    list_response,
 )
 
 from .selectors import get_user_or_none
 # endregion
-
 
 
 @api_view(["GET"])
@@ -46,10 +45,7 @@ def users_list_view(request):
 
     serializer = UserProfileSerializer(users, many=True)
 
-    return Response(
-        {"status": "ok", "data": serializer.data, "count": users.count()},
-        status=200,
-    )
+    return list_response(serializer.data, users.count())
 
 
 @api_view(["GET"])
