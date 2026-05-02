@@ -147,5 +147,5 @@ class UserListApiTest(APITestCase):
         self.assertEqual(response.data["data"]["department"], department.id)
         self.assertEqual(response.data["data"]["department_name"], "IT")
         self.assertEqual(UserProfile.objects.count(), 1)
+
         
-    
