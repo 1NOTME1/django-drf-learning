@@ -103,7 +103,7 @@ def delete_user_view(request, user_id):
 
 @api_view(["GET"])
 def departments_list_view(request):
-    departments = Department.objects.all()
+    departments = Department.objects.all().order_by("id")
     
     serializer = DepartmentSerializer(departments, many=True)
     
@@ -121,3 +121,4 @@ def create_department_view(request):
     serializer.save()
     
     return success_response(serializer.data, status_code=201)
+
