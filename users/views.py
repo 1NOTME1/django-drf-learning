@@ -108,3 +108,16 @@ def departments_list_view(request):
     serializer = DepartmentSerializer(departments, many=True)
     
     return list_response(serializer.data, departments.count())
+
+
+@api_view(["POST"])
+def create_department_view(request):
+    
+    serializer = DepartmentSerializer(data=request.data)
+    
+    if not serializer.is_valid():
+        return validation_error_response(serializer.errors)
+    
+    serializer.save()
+    
+    return success_response(serializer.data, status_code=201)
