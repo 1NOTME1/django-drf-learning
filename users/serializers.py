@@ -10,6 +10,15 @@ class UserProfileSerializer(serializers.ModelSerializer):
         model = UserProfile
         fields = ["id", "name", "age", "is_active", "department", "department_name"]
 
+    def validate(self, attrs):
+        is_active = attrs.get("is_active", self.instance.is_active if self.instance else None)
+        department = attrs.get("department", self.instance.department if self.instance else None)
+
+        if is_active is False and department is None:
+            raise serializers.ValidationError("Inactive user must have department")
+
+        return attrs
+    
     def validate_name(self, value):
         name = value.strip()
         if not name:
@@ -25,3 +34,14 @@ class DepartmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Department
         fields = ["id", "name"]
+    
+    def validate_name(self, value):
+        name = value.strip()
+
+        if not name:
+            raise serializers.ValidationError("Name cannot be empty")
+
+        if len(name) < 2:
+            raise serializers.ValidationError("Name must be at least 2 characters long")
+
+        return name
