@@ -65,3 +65,26 @@ def apply_min_age_filter(users, request):
 
     return users
 
+def parse_pagination_params(request):
+    limit = request.query_params.get("limit", 10)
+    offset = request.query_params.get("offset", 0)
+
+    try:
+        limit = int(limit)
+    except (TypeError, ValueError):
+        return None, None, "Invalid limit value"
+
+    try:
+        offset = int(offset)
+    except (TypeError, ValueError):
+        return None, None, "Invalid offset value"
+
+    if limit < 1 or limit > 100:
+        return None, None, "Invalid limit value"
+
+    if offset < 0:
+        return None, None, "Invalid offset value"
+
+    return limit, offset, None
+        
+        

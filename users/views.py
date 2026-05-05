@@ -9,6 +9,7 @@ from .filters import (
     apply_department_filter,
     apply_min_age_filter,
     apply_user_ordering,
+    parse_pagination_params
 )
 
 from .responses import (
@@ -42,6 +43,14 @@ def users_list_view(request):
     users = apply_user_ordering(users, request)
     if users is None:
         return error_response("Invalid ordering value")
+    
+    limit, offset, error_message = parse_pagination_params(request)
+    
+    if error_response:
+        return error_response(error_message, 400)
+    
+    users = users[offset:offset + limit]
+        
 
     serializer = UserProfileSerializer(users, many=True)
 
