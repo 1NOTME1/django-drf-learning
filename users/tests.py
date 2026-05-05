@@ -190,3 +190,22 @@ class UserListApiTest(APITestCase):
         self.assertEqual(len(response.data["data"]), 2)
         self.assertEqual(response.data["data"][0]["name"], "IT")
         self.assertEqual(response.data["data"][1]["name"], "HR")
+        
+    def test_update_user_inactive_without_department_returns_400(self):
+        user = UserProfile.objects.create(
+            name = "Jan",
+            age = 25,
+            is_active = True,
+            department = None,
+        )
+        
+        payload = {
+            "is_active": False,
+            "department": None
+        }
+        
+        response = self.client.patch(f"/api/users/{user.id}/update/", payload, format="json")
+        
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.data["status"], "error")
+        self.assertIn("non_field_errors", response.data["errors"])
