@@ -25,7 +25,7 @@ from .selectors import get_user_or_none
 
 @api_view(["GET"])
 def users_list_view(request):
-    users = UserProfile.objects.all()
+    users = UserProfile.objects.select_related("department").all()
 
     users = apply_user_filters(users, request)
     if users is None:
