@@ -46,7 +46,7 @@ def users_list_view(request):
     
     limit, offset, error_message = parse_pagination_params(request)
     
-    if error_response:
+    if error_response is not None:
         return error_response(error_message, 400)
     
     users = users[offset:offset + limit]
