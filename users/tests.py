@@ -209,3 +209,38 @@ class UserListApiTest(APITestCase):
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.data["status"], "error")
         self.assertIn("non_field_errors", response.data["errors"])
+        
+    def test_users_list_invalid_limit_returns_400(self):
+        response = self.client.get("/api/users/?limit=abc")
+        
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.data["status"], "error")
+    
+    def test_users_list_limit_returns_limited_users(self):
+        UserProfile.objects.create(
+            name = "Jan",
+            age = 25,
+            is_active = True,
+            department = None,
+        )
+        
+        UserProfile.objects.create(
+            name = "Anna",
+            age = 25,
+            is_active = True,
+            department = None,
+        )
+        
+        UserProfile.objects.create(
+            name = "Kuba",
+            age = 25,
+            is_active = True,
+            department = None,
+        )
+        
+        response = self.client.get("/api/users/?limit=2")
+        
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data["data"]), 2)
+        self.assertEqual(response.data["data"][0]["name"], "Jan")
+        self.assertEqual(response.data["data"][1]["name"], "Anna")
