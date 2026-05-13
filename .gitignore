@@ -24,7 +24,7 @@ staticfiles/
 *.tmp
 *.temp
 .cache/
-
+practice/
 # Test and coverage artifacts
 .pytest_cache/
 .coverage
