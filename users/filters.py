@@ -65,6 +65,7 @@ def apply_min_age_filter(users, request):
 
     return users
 
+
 def parse_pagination_params(request):
     limit = request.query_params.get("limit", 10)
     offset = request.query_params.get("offset", 0)
@@ -86,5 +87,40 @@ def parse_pagination_params(request):
         return None, None, "Invalid offset value"
 
     return limit, offset, None
-        
-        
+
+
+def apply_max_age_filter(users, request):
+    max_age = request.query_params.get("max_age")
+    
+    if max_age is None:
+        return users
+    
+    try:
+        max_age = int(max_age)
+    except (ValueError, TypeError):
+        return None
+    
+    if max_age < 0:
+        return None
+    
+    users = users.filter(age__lte=max_age)
+    
+    return users
+
+
+def apply_department_name_filter(users, request):
+    department_name = request.query_params.get("department_name")
+    
+    if department_name is None:
+        return users
+    
+    department_name = department_name.strip()
+    
+    if not department_name:
+        return None
+    
+    users = users.filter(department__name__icontains=department_name)
+    
+    return users
+    
+    

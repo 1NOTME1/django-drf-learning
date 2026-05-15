@@ -9,7 +9,9 @@ from .filters import (
     apply_department_filter,
     apply_min_age_filter,
     apply_user_ordering,
-    parse_pagination_params
+    parse_pagination_params,
+    apply_max_age_filter,
+    apply_department_name_filter,
 )
 
 from .responses import (
@@ -43,6 +45,14 @@ def users_list_view(request):
     users = apply_user_ordering(users, request)
     if users is None:
         return error_response("Invalid ordering value")
+    
+    users = apply_max_age_filter(users, request)
+    if users is None:
+        return error_response("Invalid max_age value")
+    
+    users = apply_department_name_filter(users, request)
+    if users is None:
+        return error_response("Invalid department_name value")
     
     limit, offset, error_message = parse_pagination_params(request)
     
