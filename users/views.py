@@ -133,17 +133,15 @@ class DepartmentsListAPIView(APIView):
         
         return list_response(serializer.data, departments.count())
     
+class CreateDepartmentAPIView(APIView):
+    def post(self, request):
+        serializer = DepartmentSerializer(data=request.data)
+        
+        if not serializer.is_valid():
+            return validation_error_response(serializer.errors)
+        
+        serializer.save()
+        
+        return success_response(serializer.data, status_code=201)
     
-
-@api_view(["POST"])
-def create_department_view(request):
     
-    serializer = DepartmentSerializer(data=request.data)
-    
-    if not serializer.is_valid():
-        return validation_error_response(serializer.errors)
-    
-    serializer.save()
-    
-    return success_response(serializer.data, status_code=201)
-
