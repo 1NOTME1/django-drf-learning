@@ -122,5 +122,18 @@ def apply_department_name_filter(users, request):
     users = users.filter(department__name__icontains=department_name)
     
     return users
+
+
+def apply_is_adult_filter(users, request):
+    is_adult = request.query_params.get("is_adult")
     
+    if is_adult is None:
+        return users
     
+    if is_adult == "true":
+        return users.filter(age__gte=18)
+
+    if is_adult == "false":
+        return users.filter(age__lt=18)
+    
+    return None

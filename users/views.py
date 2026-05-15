@@ -12,6 +12,8 @@ from .filters import (
     parse_pagination_params,
     apply_max_age_filter,
     apply_department_name_filter,
+    apply_is_adult_filter,
+    
 )
 
 from .responses import (
@@ -53,6 +55,10 @@ def users_list_view(request):
     users = apply_department_name_filter(users, request)
     if users is None:
         return error_response("Invalid department_name value")
+    
+    users = apply_is_adult_filter(users, request)
+    if users is None:
+        return error_response("Invalid is_adult value")
     
     limit, offset, error_message = parse_pagination_params(request)
     
