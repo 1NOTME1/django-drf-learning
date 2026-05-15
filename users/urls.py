@@ -1,7 +1,7 @@
 from django.urls import path
 from .views import (
-    get_user_view,
     UsersAPIView,
+    get_user_view,
     update_user_view,
     delete_user_view,
     DepartmentsAPIView
