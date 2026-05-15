@@ -5,8 +5,7 @@ from .views import (
     create_user_view,
     update_user_view,
     delete_user_view,
-    DepartmentsListAPIView,
-    CreateDepartmentAPIView,
+    DepartmentsAPIView
     
 )
 
@@ -16,6 +15,5 @@ urlpatterns = [
     path("users/<int:user_id>/", get_user_view),
     path("users/<int:user_id>/update/", update_user_view),
     path("users/<int:user_id>/delete/", delete_user_view),
-    path("departments/", DepartmentsListAPIView.as_view()),
-    path("departments/create/",CreateDepartmentAPIView.as_view())
+    path("departments/", DepartmentsAPIView.as_view()),
 ]

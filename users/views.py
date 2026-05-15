@@ -126,14 +126,13 @@ def delete_user_view(request, user_id):
     return message_response("User deleted")
 
 
-class DepartmentsListAPIView(APIView):
+class DepartmentsAPIView(APIView):
     def get(self, request):
         departments = Department.objects.all().order_by("id")
         serializer = DepartmentSerializer(departments, many=True)
         
         return list_response(serializer.data, departments.count())
     
-class CreateDepartmentAPIView(APIView):
     def post(self, request):
         serializer = DepartmentSerializer(data=request.data)
         
@@ -143,5 +142,3 @@ class CreateDepartmentAPIView(APIView):
         serializer.save()
         
         return success_response(serializer.data, status_code=201)
-    
-    
