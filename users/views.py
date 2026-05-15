@@ -1,6 +1,6 @@
 # region imports
 from rest_framework.decorators import api_view
-
+from rest_framework.views import APIView
 from .models import UserProfile, Department
 from .serializers import UserProfileSerializer, DepartmentSerializer
 
@@ -126,14 +126,14 @@ def delete_user_view(request, user_id):
     return message_response("User deleted")
 
 
-@api_view(["GET"])
-def departments_list_view(request):
-    departments = Department.objects.all().order_by("id")
+class DepartmentsListAPIView(APIView):
+    def get(self, request):
+        departments = Department.objects.all().order_by("id")
+        serializer = DepartmentSerializer(departments, many=True)
+        
+        return list_response(serializer.data, departments.count())
     
-    serializer = DepartmentSerializer(departments, many=True)
     
-    return list_response(serializer.data, departments.count())
-
 
 @api_view(["POST"])
 def create_department_view(request):
