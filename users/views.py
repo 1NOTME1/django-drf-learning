@@ -29,51 +29,6 @@ from .selectors import get_user_or_none
 
 
 @api_view(["GET"])
-def users_list_view(request):
-    users = UserProfile.objects.select_related("department").all()
-
-    users = apply_user_filters(users, request)
-    if users is None:
-        return error_response("Invalid is_active value")
-
-    users = apply_min_age_filter(users, request)
-    if users is None:
-        return error_response("Invalid min_age value")
-    
-    users = apply_department_filter(users, request)
-    if users is None:
-        return error_response("Invalid department value")
-
-    users = apply_user_ordering(users, request)
-    if users is None:
-        return error_response("Invalid ordering value")
-    
-    users = apply_max_age_filter(users, request)
-    if users is None:
-        return error_response("Invalid max_age value")
-    
-    users = apply_department_name_filter(users, request)
-    if users is None:
-        return error_response("Invalid department_name value")
-    
-    users = apply_is_adult_filter(users, request)
-    if users is None:
-        return error_response("Invalid is_adult value")
-    
-    limit, offset, error_message = parse_pagination_params(request)
-    
-    if error_message is not None:
-        return error_response(error_message, 400)
-    
-    users = users[offset:offset + limit]
-        
-
-    serializer = UserProfileSerializer(users, many=True)
-
-    return list_response(serializer.data, users.count())
-
-
-@api_view(["GET"])
 def get_user_view(request, user_id):
     user = get_user_or_none(user_id)
 
@@ -85,16 +40,6 @@ def get_user_view(request, user_id):
     return success_response(serializer.data)
 
 
-@api_view(["POST"])
-def create_user_view(request):
-    serializer = UserProfileSerializer(data=request.data)
-
-    if not serializer.is_valid():
-        return validation_error_response(serializer.errors)
-
-    serializer.save()
-
-    return success_response(serializer.data, status_code=201)
 
 
 @api_view(["PATCH"])
@@ -125,6 +70,59 @@ def delete_user_view(request, user_id):
 
     return message_response("User deleted")
 
+
+class UsersAPIView(APIView):
+    def get(self, request):
+        users = UserProfile.objects.select_related("department").all()
+
+        users = apply_user_filters(users, request)
+        if users is None:
+            return error_response("Invalid is_active value")
+
+        users = apply_min_age_filter(users, request)
+        if users is None:
+            return error_response("Invalid min_age value")
+        
+        users = apply_department_filter(users, request)
+        if users is None:
+            return error_response("Invalid department value")
+
+        users = apply_user_ordering(users, request)
+        if users is None:
+            return error_response("Invalid ordering value")
+        
+        users = apply_max_age_filter(users, request)
+        if users is None:
+            return error_response("Invalid max_age value")
+        
+        users = apply_department_name_filter(users, request)
+        if users is None:
+            return error_response("Invalid department_name value")
+        
+        users = apply_is_adult_filter(users, request)
+        if users is None:
+            return error_response("Invalid is_adult value")
+        
+        limit, offset, error_message = parse_pagination_params(request)
+        
+        if error_message is not None:
+            return error_response(error_message, 400)
+        
+        users = users[offset:offset + limit]
+            
+
+        serializer = UserProfileSerializer(users, many=True)
+
+        return list_response(serializer.data, users.count())
+
+    def post(self, request):
+        serializer = UserProfileSerializer(data=request.data)
+        if not serializer.is_valid():
+            return validation_error_response(serializer.errors)
+
+        serializer.save()
+
+        return success_response(serializer.data, status_code=201)
 
 class DepartmentsAPIView(APIView):
     def get(self, request):
