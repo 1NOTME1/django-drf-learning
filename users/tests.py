@@ -112,7 +112,7 @@ class UserListApiTest(APITestCase):
             "is_active": True,
         }
 
-        response = self.client.post("/api/users/create/", payload, format="json")
+        response = self.client.post("/api/users/", payload, format="json")
 
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.data["status"], "ok")
@@ -123,7 +123,7 @@ class UserListApiTest(APITestCase):
     def test_create_user_empty_name_returns_400(self):
         payload = {"name": "   ", "age": 25, "is_active": True}
 
-        response = self.client.post("/api/users/create/", payload, format="json")
+        response = self.client.post("/api/users/", payload, format="json")
 
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.data["status"], "error")
@@ -140,7 +140,7 @@ class UserListApiTest(APITestCase):
             "department": department.id,
         }
 
-        response = self.client.post("/api/users/create/", payload, format="json")
+        response = self.client.post("/api/users/", payload, format="json")
         
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.data["status"], "ok")
@@ -151,31 +151,28 @@ class UserListApiTest(APITestCase):
     def test_create_department_success(self):
         payload = {"name": "IT"}
         
-        response = self.client.post("/api/departments/create/", payload, format="json")
+        response = self.client.post("/api/departments/", payload, format="json")
         
         self.assertEqual(response.status_code, 201)
-        self.assertEqual(response.data["status"], "ok")
-        self.assertEqual(response.data["data"]["name"], "IT")
+        self.assertEqual(response.data["name"], "IT")
         self.assertEqual(Department.objects.count(), 1)
         
     def test_create_department_empty_name_returns_400(self):
         payload = {"name": ""}
         
-        response = self.client.post("/api/departments/create/", payload, format="json")
+        response = self.client.post("/api/departments/", payload, format="json")
         
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(response.data["status"], "error")
-        self.assertIn("name", response.data["errors"])
+        self.assertIn("name", response.data)
         self.assertEqual(Department.objects.count(), 0)
         
     def test_create_department_missing_name_returns_400(self):
         payload = {}
         
-        response = self.client.post("/api/departments/create/", payload, format="json")
+        response = self.client.post("/api/departments/", payload, format="json")
         
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(response.data["status"], "error")
-        self.assertIn("name", response.data["errors"])
+        self.assertIn("name", response.data)
         self.assertEqual(Department.objects.count(), 0)
         
     def test_departments_list_returns_departments(self):
@@ -185,11 +182,9 @@ class UserListApiTest(APITestCase):
         response = self.client.get("/api/departments/")
         
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data["status"], "ok")
-        self.assertEqual(response.data["count"], 2)
-        self.assertEqual(len(response.data["data"]), 2)
-        self.assertEqual(response.data["data"][0]["name"], "IT")
-        self.assertEqual(response.data["data"][1]["name"], "HR")
+        self.assertEqual(len(response.data), 2)
+        self.assertEqual(response.data[0]["name"], "IT")
+        self.assertEqual(response.data[1]["name"], "HR")
         
     def test_update_user_inactive_without_department_returns_400(self):
         user = UserProfile.objects.create(
@@ -204,7 +199,7 @@ class UserListApiTest(APITestCase):
             "department": None
         }
         
-        response = self.client.patch(f"/api/users/{user.id}/update/", payload, format="json")
+        response = self.client.patch(f"/api/users/{user.id}/", payload, format="json")
         
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.data["status"], "error")
