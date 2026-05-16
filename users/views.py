@@ -1,5 +1,4 @@
 # region imports
-from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from .models import UserProfile, Department
 from .serializers import UserProfileSerializer, DepartmentSerializer
@@ -19,18 +18,20 @@ from .responses import (
     error_response,
     validation_error_response,
     success_response,
-    message_response,
     list_response,
+    message_response
 )
 
-from .selectors import get_user_or_none
 # endregion
 
 
-class UsersAPIView(APIView):
-    def get(self, request):
-        users = UserProfile.objects.select_related("department").all()
+class UserProfileViewSet(ModelViewSet):
+    queryset = UserProfile.objects.select_related("department").all()
+    serializer_class = UserProfileSerializer
 
+    def list(self, request):
+        users = self.get_queryset()
+        
         users = apply_user_filters(users, request)
         if users is None:
             return error_response("Invalid is_active value")
@@ -66,12 +67,12 @@ class UsersAPIView(APIView):
         
         users = users[offset:offset + limit]
 
-        serializer = UserProfileSerializer(users, many=True)
+        serializer = self.get_serializer(users, many=True)
 
         return list_response(serializer.data, users.count())
 
-    def post(self, request):
-        serializer = UserProfileSerializer(data=request.data)
+    def create(self, request):
+        serializer = self.get_serializer(data=request.data)
         if not serializer.is_valid():
             return validation_error_response(serializer.errors)
 
@@ -79,61 +80,40 @@ class UsersAPIView(APIView):
 
         return success_response(serializer.data, status_code=201)
 
-
-class UserDetailAPIView(APIView):
-    def get(self, request, user_id):
-        user = get_user_or_none(user_id)
-
-        if user is None:
-            return error_response("User not found", 404)
-
-        serializer = UserProfileSerializer(user)
-
+    def retrieve(self, request, pk=None):
+        user = self.get_object()
+        serializer = self.get_serializer(user)
+        
         return success_response(serializer.data)
 
-    def patch(self, request, user_id):
-        user = get_user_or_none(user_id)
-
-        if user is None:
-            return error_response("User not found", 404)
-
-        serializer = UserProfileSerializer(user, data=request.data, partial=True)
-
+    def partial_update(self, request, pk=None):
+        user = self.get_object()
+        serializer = self.get_serializer(user, data=request.data, partial=True)
+        
         if not serializer.is_valid():
             return validation_error_response(serializer.errors)
-
+        
         serializer.save()
-
+        
         return success_response(serializer.data)
 
-    def delete(self, request, user_id):
-        user = get_user_or_none(user_id)
+    def update(self, request, pk=None):
+        user = self.get_object()
+        serializer = self.get_serializer(user, data=request.data)
+        
+        if not serializer.is_valid():
+            return validation_error_response(serializer.errors)
+        
+        serializer.save()
+        
+        return success_response(serializer.data)
 
-        if user is None:
-            return error_response("User not found", 404)
-
+    def destroy(self, request, pk=None):
+        user = self.get_object()
         user.delete()
-
+        
         return message_response("User deleted")
 
-
-class DepartmentsAPIView(APIView):
-    def get(self, request):
-        departments = Department.objects.all().order_by("id")
-        serializer = DepartmentSerializer(departments, many=True)
-        
-        return list_response(serializer.data, departments.count())
-    
-    def post(self, request):
-        serializer = DepartmentSerializer(data=request.data)
-        
-        if not serializer.is_valid():
-            return validation_error_response(serializer.errors)
-        
-        serializer.save()
-        
-        return success_response(serializer.data, status_code=201)
-    
 
 class DepartmentViewSet(ModelViewSet):
     queryset = Department.objects.all().order_by("id")
