@@ -62,7 +62,17 @@ class UserProfileViewSet(ModelViewSet):
             return None, "Invalid ordering value"
 
         return users, None
-        
+    
+    def apply_pagination(self, users, request):
+        limit, offset, error_message = parse_pagination_params(request)
+
+        if error_message is not None:
+            return None, error_message
+
+        users = users[offset:offset + limit]
+
+        return users, None
+    
     def list(self, request):
         users = self.get_queryset()
         users, error_message = self.apply_filters(users, request)
@@ -70,12 +80,10 @@ class UserProfileViewSet(ModelViewSet):
         if error_message is not None:
             return error_response(error_message)
         
-        limit, offset, error_message = parse_pagination_params(request)
-        
+        users, error_message = self.apply_pagination(users, request)
+
         if error_message is not None:
             return error_response(error_message, 400)
-        
-        users = users[offset:offset + limit]
 
         serializer = self.get_serializer(users, many=True)
 
