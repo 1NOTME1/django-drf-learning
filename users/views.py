@@ -1,5 +1,4 @@
 # region imports
-from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 from .models import UserProfile, Department
 from .serializers import UserProfileSerializer, DepartmentSerializer
@@ -13,7 +12,6 @@ from .filters import (
     apply_max_age_filter,
     apply_department_name_filter,
     apply_is_adult_filter,
-    
 )
 
 from .responses import (
