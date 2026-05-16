@@ -32,36 +32,43 @@ class UserProfileViewSet(ModelViewSet):
     def get_queryset(self):
         return UserProfile.objects.select_related("department").all()
 
-    def list(self, request):
-        users = self.get_queryset()
-        
+    def apply_filters(self, users, request):
         users = apply_user_filters(users, request)
         if users is None:
-            return error_response("Invalid is_active value")
+            return None, "Invalid is_active value"
 
         users = apply_min_age_filter(users, request)
         if users is None:
-            return error_response("Invalid min_age value")
-        
+            return None, "Invalid min_age value"
+
         users = apply_max_age_filter(users, request)
         if users is None:
-            return error_response("Invalid max_age value")
-        
+            return None, "Invalid max_age value"
+
         users = apply_is_adult_filter(users, request)
         if users is None:
-            return error_response("Invalid is_adult value")
-        
+            return None, "Invalid is_adult value"
+
         users = apply_department_filter(users, request)
         if users is None:
-            return error_response("Invalid department value")
-        
+            return None, "Invalid department value"
+
         users = apply_department_name_filter(users, request)
         if users is None:
-            return error_response("Invalid department_name value")
+            return None, "Invalid department_name value"
 
         users = apply_user_ordering(users, request)
         if users is None:
-            return error_response("Invalid ordering value")
+            return None, "Invalid ordering value"
+
+        return users, None
+        
+    def list(self, request):
+        users = self.get_queryset()
+        users, error_message = self.apply_filters(users, request)
+        
+        if error_message is not None:
+            return error_response(error_message)
         
         limit, offset, error_message = parse_pagination_params(request)
         
