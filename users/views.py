@@ -19,15 +19,18 @@ from .responses import (
     validation_error_response,
     success_response,
     list_response,
-    message_response
+    message_response,
 )
 
 # endregion
 
 
 class UserProfileViewSet(ModelViewSet):
-    queryset = UserProfile.objects.select_related("department").all()
+    queryset = UserProfile.objects.all()
     serializer_class = UserProfileSerializer
+    
+    def get_queryset(self):
+        return UserProfile.objects.select_related("department").all()
 
     def list(self, request):
         users = self.get_queryset()
