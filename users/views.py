@@ -1,5 +1,6 @@
 # region imports
 from rest_framework.views import APIView
+from rest_framework.viewsets import ModelViewSet
 from .models import UserProfile, Department
 from .serializers import UserProfileSerializer, DepartmentSerializer
 
@@ -132,3 +133,8 @@ class DepartmentsAPIView(APIView):
         serializer.save()
         
         return success_response(serializer.data, status_code=201)
+    
+
+class DepartmentViewSet(ModelViewSet):
+    queryset = Department.objects.all().order_by("id")
+    serializer_class = DepartmentSerializer
